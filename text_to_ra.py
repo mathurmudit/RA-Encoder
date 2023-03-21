@@ -1,35 +1,28 @@
 '''
 This file's purpose is to take a speech input from the user and convert it to Courier's Code.
-Input Type: Audio
-Output Type: Text atm
+Input Type: Audio from Microphone
+Output Type: Text (Courier's Code Representation)
 
 For running this file:
     - may need to 'brew install flac'
     - may need to follow steps at:
         - https://stackoverflow.com/questions/73268630/error-could-not-build-wheels-for-pyaudio-which-is-required-to-install-pyprojec
 
+All dependencies can be found in requirements.txt, which should be pip install -r'd before
+running locally.
+
+Your machine needs to be connected to the internet in order to run recognize_google().
 '''
 
-# these are some necessary imports for speech recognition
+from re import M
 import sys
 import subprocess
 from subprocess import STDOUT, check_call
 import os
+import speech_recognition as sr
+import pyttsx3
 
-# pip installations for necessary speech recognition packages
-subprocess.check_call([sys.executable, '-m', 'pip', 'install', 
-'speechrecognition'])
-
-subprocess.check_call([sys.executable, '-m', 'pip', 'install', 
-'pyttsx3'])
-
-# if you're running on an M1 Mac, you are going to need to do some extra setup
-# that can be found here: https://stackoverflow.com/questions/73268630/error-could-not-build-wheels-for-pyaudio-which-is-required-to-install-pyprojec
-subprocess.check_call([sys.executable, '-m', 'pip', 'install', 
-'pyaudio'])
-
-# this dictionary maps all characters to their Courier's Code representation
-translate = {
+couriers_code = {
     'a': '11',
     'b': '12',
     'c': '13',
@@ -59,70 +52,44 @@ translate = {
     ' ': ' ',
 }
 
-# get input from the user
-text = input("Enter the message you would like to convert to RA Courier's Code:")
-
-# to reduce the number of entries in the 'translate' dictionary, use only lowercase letters
-text = text.lower()
-
-ra_text = ""
-
-# reconstruct the 'text' input in 'ra_text' with the translated characters
-for char in text:
-    if char in translate:
-        ra_text += (translate[char])
-    # all lexicographical symbols that aren't alphabetical should remain unchanged
-    else:
-        ra_text += char
-
-
-
-# ------------------------------------ HERE BEGINS THE SPEECH-TO-TEXT STUFF -------------------------
-
-# these imports will give you warnings before running, but don't worry
-# the packages are installed earlier in the script
-import speech_recognition as sr
-import pyttsx3
-
-# Initialize the recognizer
+# Initialize the recognizer to ensure it returns when it hears silence
 r = sr.Recognizer()
- 
-# Function to convert text to speech
-def SpeakText(command):
-     
-    # Initialize the engine
-    engine = pyttsx3.init()
-    engine.say(command)
-    engine.runAndWait()
+r.dynamic_energy_threshold = False
+r.energy_threshold = 400
 
-while(1):   
-     
-    # Exception handling to handle
-    # exceptions at the runtime
-    try:
-         
-        # use the microphone as source for input.
-        with sr.Microphone() as source2:
-             
-            # wait for a second to let the recognizer
-            # adjust the energy threshold based on
-            # the surrounding noise level
-            r.adjust_for_ambient_noise(source2, duration=0.2)
-             
-            #listens for the user's input
-            audio2 = r.listen(source2)
-             
-            # Using google to recognize audio
-            MyText = r.recognize_google(audio2)
+def listen_and_return_text():
+    with sr.Microphone() as source:
+        r.adjust_for_ambient_noise(source, duration=0.2)
+            
+        print("listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source, timeout = 3)
+
+    try:            
+            print("Recognizing...")
+            MyText = r.recognize_google(audio)
             MyText = MyText.lower()
- 
-            print("Did you say ",MyText)
-            SpeakText(MyText)
-    
+
+            print("English text heard: ",MyText)
+            return MyText
+
     except sr.RequestError as e:
         print("Could not request results; {0}".format(e))
-         
+            
     except sr.UnknownValueError:
         print("unknown error occurred")
 
-print(ra_text)
+def english_to_couriers_code(MyText):
+    ra_text = ""
+    for char in MyText:
+        if char in couriers_code:
+            ra_text += (couriers_code[char])
+        # all symbols that aren't alphabetical should remain unchanged
+        else:
+            ra_text += char
+    return ra_text
+
+MyText = listen_and_return_text()
+ra_text = english_to_couriers_code(MyText)
+
+print("Courier's Code Translation: ",ra_text)
