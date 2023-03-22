@@ -14,8 +14,8 @@ running locally.
 Your machine needs to be connected to the internet in order to run recognize_google().
 '''
 
-import speech_recognition as sr
 import pyttsx3
+import speech_recognition as sr
 
 COURIERS_CODE = {
     'a': '11',
@@ -61,11 +61,11 @@ def listen_and_return_text():
 
     try:            
             print("Recognizing...")
-            myText = r.recognize_google(audio)
-            myText = myText.lower()
+            my_text = r.recognize_google(audio)
+            my_text = my_text.lower()
 
-            print("English text heard: ", myText)
-            return myText
+            print("English text heard: ", my_text)
+            return my_text
 
     except sr.RequestError as e:
         print("Could not request results; {0}".format(e))
