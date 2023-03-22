@@ -74,6 +74,9 @@ def listen_and_return_text():
         print("unknown error occurred")
 
 def english_to_couriers_code(text):
+    if text is None:
+        raise Exception("Recording failed. Try again later.")
+    
     ra_text = ""
     for char in text:
         if char in COURIERS_CODE:
