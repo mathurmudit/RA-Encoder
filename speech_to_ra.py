@@ -14,15 +14,10 @@ running locally.
 Your machine needs to be connected to the internet in order to run recognize_google().
 '''
 
-from re import M
-import sys
-import subprocess
-from subprocess import STDOUT, check_call
-import os
 import speech_recognition as sr
 import pyttsx3
 
-couriers_code = {
+COURIERS_CODE = {
     'a': '11',
     'b': '12',
     'c': '13',
@@ -49,7 +44,6 @@ couriers_code = {
     'x': '45',
     'y': '46',
     'z': '41',
-    ' ': ' ',
 }
 
 # Initialize the recognizer to ensure it returns when it hears silence
@@ -67,11 +61,11 @@ def listen_and_return_text():
 
     try:            
             print("Recognizing...")
-            MyText = r.recognize_google(audio)
-            MyText = MyText.lower()
+            myText = r.recognize_google(audio)
+            myText = myText.lower()
 
-            print("English text heard: ",MyText)
-            return MyText
+            print("English text heard: ", myText)
+            return myText
 
     except sr.RequestError as e:
         print("Could not request results; {0}".format(e))
@@ -79,17 +73,17 @@ def listen_and_return_text():
     except sr.UnknownValueError:
         print("unknown error occurred")
 
-def english_to_couriers_code(MyText):
+def english_to_couriers_code(text):
     ra_text = ""
-    for char in MyText:
-        if char in couriers_code:
-            ra_text += (couriers_code[char])
+    for char in text:
+        if char in COURIERS_CODE:
+            ra_text += COURIERS_CODE[char]
         # all symbols that aren't alphabetical should remain unchanged
         else:
             ra_text += char
     return ra_text
 
-MyText = listen_and_return_text()
-ra_text = english_to_couriers_code(MyText)
+english_text = listen_and_return_text()
+ra_text = english_to_couriers_code(english_text)
 
-print("Courier's Code Translation: ",ra_text)
+print("Courier's Code Translation: ", ra_text)
