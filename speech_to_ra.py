@@ -51,7 +51,7 @@ r = sr.Recognizer()
 r.dynamic_energy_threshold = False
 r.energy_threshold = 400
 
-def listen_and_return_text():
+def listen_and_return_english():
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source, duration=0.2)
             
@@ -86,7 +86,7 @@ def english_to_couriers_code(text):
             ra_text += char
     return ra_text
 
-english_text = listen_and_return_text()
+english_text = listen_and_return_english()
 ra_text = english_to_couriers_code(english_text)
 
 print("Courier's Code Translation: ", ra_text)
